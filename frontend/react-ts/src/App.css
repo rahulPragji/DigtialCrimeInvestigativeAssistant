@@ -40,23 +40,3 @@
 .read-the-docs {
   color: #888;
 }
-
-.App {
-  text-align: center;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background-color: #282c34;
-  color: white;
-}
-
-.App-header {
-  padding: 2rem;
-}
-
-h1 {
-  font-size: 2.5rem;
-  margin: 0;
-}
