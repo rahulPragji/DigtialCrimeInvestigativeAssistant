@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import appLogo from '../assets/Icons/android-chrome-192x192.png';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
@@ -40,12 +41,13 @@ const HomePage: React.FC = () => {
           <h2>What are you looking for ?</h2>
           {/*buttons populated with crime types from database and one button that says describe*/}
           <div className="search-options">
-            <button className="search-option">Identity theft</button>
-            <button className="search-option">Poaching</button>
-            <button className="search-option">Ransomware</button>
-            <button className="search-option">Social engineering</button>
-            <button className="search-option">Describe it</button>
+            <Link to="/device-selection/identity-theft" className="search-option special-option">Identity theft</Link>
+            <Link to="/device-selection/poaching" className="search-option special-option">Poaching</Link>
+            <Link to="/device-selection/ransomware" className="search-option special-option">Ransomware</Link>
+            <Link to="/device-selection/social-engineering" className="search-option special-option">Social engineering</Link>
+            <Link to="/device-selection/custom" className="search-option special-option">Describe it</Link>
           </div>
+          {/* buttons link to device selection page */}
         </div>
       </main>
     </div>
