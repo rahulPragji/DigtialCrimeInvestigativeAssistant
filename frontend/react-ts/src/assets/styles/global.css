@@ -12,6 +12,20 @@ html, body {
   width: 100%;
   overflow-x: hidden;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  background-color: #0c0c0c;
+  color: #f0f0f0;
+  scroll-behavior: smooth; /* Enable smooth scrolling for the entire page */
+}
+
+/* Force the root element to take full width and disable any margin/padding */
+#root {
+  width: 100vw;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 :root {
@@ -27,6 +41,7 @@ html, body {
   --bg-dark: #111;
   --bg-darker: #0c0c0c;
   --bg-card: #1a1a1a;
+  --bg-overlay: rgba(0, 0, 0, 0.8);
   --border-light: rgba(255, 255, 255, 0.1);
   --border-dim: rgba(255, 255, 255, 0.05);
 
@@ -43,7 +58,52 @@ html, body {
   width: 100%;
   min-height: 100vh;
   position: relative;
+  overflow-x: hidden;
+  background-color: var(--bg-darker);
+}
+
+/* Landing Page specific container */
+.landing-container {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+  background-color: var(--bg-darker);
+  margin: 0;
+  padding: 0;
+  max-width: 100%;
+  left: 0;
+  right: 0;
+  scroll-snap-type: y mandatory; /* Add scroll snap for cleaner section transitions */
+}
+
+/* Section wrappers for full width */
+.hero-section-wrapper,
+.how-it-works-wrapper {
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+  position: relative;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh; /* Ensure each section takes up at least a full viewport height */
+  scroll-snap-align: start; /* Snap to the start of each section */
+}
+
+/* Ensure the hero section takes a full viewport */
+.hero-section-wrapper {
+  height: 100vh;
   overflow: hidden;
+}
+
+/* Ensure the how-it-works section is positioned below */
+.how-it-works-wrapper {
+  margin-top: 0;
 }
 
 /* Common Header Styles */
@@ -51,8 +111,13 @@ html, body {
   display: flex;
   align-items: center;
   padding: 0.6rem 2rem;
-  position: relative;
+  position: fixed; /* Make header fixed */
+  top: 0;
+  left: 0;
+  width: 100%;
   z-index: 100;
+  background-color: rgba(12, 12, 12, 0.95); /* Semi-transparent background */
+  backdrop-filter: blur(5px);
   border-bottom: 1px solid var(--border-dim);
 }
 
@@ -150,6 +215,12 @@ html, body {
   box-shadow: var(--shadow-large);
 }
 
+.full-width-btn {
+  min-width: 200px;
+  padding: 1rem 2.5rem;
+  font-size: 1.1rem;
+}
+
 /* Sidebar Styles */
 .sidebar {
   position: fixed;
@@ -228,7 +299,7 @@ html, body {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.7);
   z-index: 999;
   opacity: 0;
   visibility: hidden;
@@ -247,10 +318,14 @@ html, body {
   align-items: center;
   background-color: var(--bg-dark);
   color: white;
+  height: 100vh; /* Fixed height to take full viewport */
   width: 100vw;
-  height: 100vh;
   position: relative;
   overflow: hidden;
+  padding: 0;
+  margin: 0;
+  left: 0;
+  right: 0;
 }
 
 .hero-section::before {
@@ -266,8 +341,8 @@ html, body {
 
 .title-container {
   text-align: center;
-  max-width: 800px;
-  width: 90%;
+  max-width: 900px;
+  width: 100%;
   padding: 2rem;
   z-index: 5;
   position: relative;
@@ -279,6 +354,7 @@ html, body {
   border-radius: 50%;
   box-shadow: 0 0 20px var(--primary-glow);
   animation: pulse 3s infinite alternate;
+  margin-bottom: 1.5rem;
 }
 
 .main-title {
@@ -303,13 +379,20 @@ html, body {
   justify-content: center;
   align-items: center;
   padding: 2rem;
-  background: linear-gradient(to bottom right, rgba(0, 40, 60, 0.5), rgba(0, 0, 0, 0.8));
+  margin-top: 60px; /* Add top margin to account for fixed header */
+  min-height: calc(100vh - 60px);
+  background: linear-gradient(to bottom right, #0a1721, #000000);
+  position: relative;
+  z-index: 1;
 }
 
 .search-container {
   text-align: center;
   max-width: 900px;
   width: 100%;
+  background-color: none;
+  padding: 3rem 2rem;
+  border-radius: 10px;
 }
 
 .search-container h2 {
@@ -317,6 +400,7 @@ html, body {
   margin-bottom: 3rem;
   color: white;
   font-weight: 500;
+  text-shadow: 0 0 5px rgba(0, 179, 255, 0.3);
 }
 
 .search-options {
@@ -329,7 +413,7 @@ html, body {
 .search-option {
   background-color: rgba(255, 255, 255, 0.1);
   color: white;
-  border: none;
+  border: 1px solid rgba(0, 179, 255, 0.3);
   padding: 1rem 2rem;
   border-radius: 30px;
   font-size: 1rem;
@@ -342,6 +426,36 @@ html, body {
   background-color: var(--primary-color);
   transform: translateY(-3px);
   box-shadow: 0 5px 15px var(--primary-glow);
+}
+
+.search-option.active {
+  background-color: var(--primary-color);
+  box-shadow: 0 0 15px var(--primary-glow);
+  transform: translateY(-3px);
+}
+
+.cyber-grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    linear-gradient(rgba(25, 25, 25, 0.8) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(25, 25, 25, 0.8) 1px, transparent 1px);
+  background-size: 50px 50px;
+  opacity: 0.2;
+  z-index: 0;
+  animation: grid-animation 20s linear infinite;
+}
+
+@keyframes grid-animation {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 50px 50px;
+  }
 }
 
 /* Animations */
@@ -370,10 +484,10 @@ html, body {
     transform: translateY(0) translateX(0);
   }
   50% {
-    transform: translateY(100px) translateX(20px);
+    transform: translateY(15px) translateX(10px);
   }
   100% {
-    transform: translateY(-100px) translateX(-20px);
+    transform: translateY(-15px) translateX(-10px);
   }
 }
 
@@ -403,79 +517,6 @@ html, body {
   opacity: 0.7;
 }
 
-.cyber-grid {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: 
-    linear-gradient(rgba(25, 25, 25, 0.8) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(25, 25, 25, 0.8) 1px, transparent 1px);
-  background-size: 50px 50px;
-  opacity: 0.2;
-  z-index: 0;
-  animation: grid-animation 20s linear infinite;
-}
-
-@keyframes grid-animation {
-  0% {
-    background-position: 0 0;
-  }
-  100% {
-    background-position: 50px 50px;
-  }
-}
-
-/* How it Works Section */
-.how-it-works-section {
-  background-color: var(--bg-darker);
-  color: var(--text-light);
-  padding: 5rem 2rem;
-  min-height: 100vh;
-  position: relative;
-  z-index: 2;
-  transform: translateY(100vh);
-  transition: transform 1s ease;
-}
-
-.how-it-works-section.show {
-  transform: translateY(0);
-}
-
-.how-it-works-section::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent);
-  pointer-events: none;
-  z-index: -1;
-}
-
-.how-it-works-section h2 {
-  text-align: center;
-  font-size: 2.5rem;
-  margin-bottom: 2rem;
-  font-weight: 600;
-  color: var(--primary-color);
-  text-shadow: 0 0 8px var(--primary-glow);
-}
-
-.steps-container {
-  max-width: 900px;
-  margin: 0 auto;
-  line-height: 1.8;
-  font-size: 1.1rem;
-}
-
-.steps-container p {
-  margin-bottom: 1.5rem;
-  color: var(--text-dim);
-}
-
 /* Media Queries for Responsiveness */
 @media (max-width: 768px) {
   .main-title {
@@ -488,20 +529,12 @@ html, body {
   }
 
   .btn-primary, .btn-secondary {
-    width: 80%;
+    width: 100%;
     margin-bottom: 0.5rem;
   }
-
-  .how-it-works-section {
-    padding: 3rem 1.5rem;
-  }
   
-  .how-it-works-section h2 {
-    font-size: 2rem;
-  }
-  
-  .steps-container {
-    font-size: 1rem;
+  .full-width-btn {
+    width: 80%;
   }
   
   .search-container h2 {
@@ -522,10 +555,6 @@ html, body {
     font-size: 2rem;
   }
   
-  .how-it-works-section h2 {
-    font-size: 1.8rem;
-  }
-  
   .header {
     padding: 0.5rem 1rem;
   }
@@ -534,12 +563,9 @@ html, body {
     font-size: 1.5rem;
   }
   
-  .search-options {
-    flex-direction: column;
-  }
-  
   .search-option {
     width: 100%;
+    min-width: unset;
   }
   
   .sidebar {

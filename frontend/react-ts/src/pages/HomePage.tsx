@@ -1,41 +1,50 @@
 import React, { useState } from 'react';
 import appLogo from '../assets/Icons/android-chrome-192x192.png';
 import Sidebar from '../components/Sidebar';
+import Navbar from '../components/Navbar';
 
 const HomePage: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeOption, setActiveOption] = useState<string | null>(null);
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
+  
+  const handleOptionClick = (option: string) => {
+    setActiveOption(option);
+    // Future functionality would be added here
+  };
 
   return (
     <div className="container">
-      <header className="header">
-        <div className="menu-toggle" onClick={toggleSidebar}>
-          <div className="hamburger">
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
-        </div>
-        <div className="logo">
-          <img src={appLogo} alt="DCIA Logo" className="header-logo" />
-          <span>DCIA</span>
-        </div>
-      </header>
+      <Navbar toggleSidebar={toggleSidebar} />
 
       <Sidebar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
 
       <main className="home-main">
+        <div className="cyber-grid"></div>
+        <div className="forensic-particles">
+          {Array.from({ length: 10 }).map((_, index) => (
+            <div key={index} className="particle" style={{
+              '--random-size': `${Math.random() * 2 + 0.5}px`,
+              '--random-x': `${Math.random() * 100}%`,
+              '--random-y': `${Math.random() * 100}%`,
+              '--random-duration': `${Math.random() * 30 + 10}s`,
+              '--random-delay': `${Math.random() * 5}s`,
+            } as React.CSSProperties} />
+          ))}
+        </div>
+        
         <div className="search-container">
-          <h2>What are you looking for?</h2>
+          <h2>What are you looking for ?</h2>
+          {/*buttons populated with crime types from database and one button that says describe*/}
           <div className="search-options">
-            <button className="search-option">Digital Evidence</button>
-            <button className="search-option">Network Analysis</button>
-            <button className="search-option">Case Files</button>
-            <button className="search-option">User Activity</button>
-            <button className="search-option">System Logs</button>
+            <button className="search-option">Identity theft</button>
+            <button className="search-option">Poaching</button>
+            <button className="search-option">Ransomware</button>
+            <button className="search-option">Social engineering</button>
+            <button className="search-option">Describe it</button>
           </div>
         </div>
       </main>
