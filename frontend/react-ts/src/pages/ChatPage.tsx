@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
+import ChatBox from '../components/ChatBox';
 
 /**
  * ChatPage Component
@@ -12,7 +13,6 @@ import Sidebar from '../components/Sidebar';
 const ChatPage: React.FC = () => {
   const { deviceType, crimeType } = useParams<{ deviceType: string; crimeType: string }>();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [message, setMessage] = useState('');
   const [chatHistory, setChatHistory] = useState<Array<{type: 'user' | 'assistant', content: string}>>([
     { type: 'assistant', content: `Welcome to the Digital Crime Investigation Assistant chat. How can I help you with your ${crimeType} investigation on ${deviceType} devices?` }
   ]);
@@ -21,14 +21,7 @@ const ChatPage: React.FC = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
-  const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setMessage(e.target.value);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!message.trim()) return;
-
+  const handleSendMessage = (message: string) => {
     // Add user message to chat
     setChatHistory([...chatHistory, { type: 'user', content: message }]);
 
@@ -42,8 +35,6 @@ const ChatPage: React.FC = () => {
         }
       ]);
     }, 1000);
-
-    setMessage('');
   };
 
   return (
@@ -55,7 +46,7 @@ const ChatPage: React.FC = () => {
         <div className="cyber-grid"></div>
         <div className="chat-container">
           <div className="chat-header">
-            <h2>Chat Assistant - {deviceType} | {crimeType}</h2>
+            <h2>Chat Assistant</h2>
             <p className="chat-description">
               Ask questions about artifacts, investigation techniques, or get guidance on your {crimeType} case.
             </p>
@@ -69,18 +60,10 @@ const ChatPage: React.FC = () => {
             ))}
           </div>
           
-          <form className="chat-input-form" onSubmit={handleSubmit}>
-            <input
-              type="text"
-              value={message}
-              onChange={handleMessageChange}
-              placeholder="Type your question here..."
-              className="chat-input"
-            />
-            <button type="submit" className="send-button">
-              Send
-            </button>
-          </form>
+          <ChatBox 
+            onSendMessage={handleSendMessage} 
+            placeholder="Type your question here..."
+          />
         </div>
       </main>
     </div>
