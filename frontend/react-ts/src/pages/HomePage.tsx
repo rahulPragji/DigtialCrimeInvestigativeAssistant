@@ -41,10 +41,10 @@ const HomePage: React.FC = () => {
           <h2>What are you looking for ?</h2>
           {/*buttons populated with crime types from database and one button that says describe*/}
           <div className="search-options">
-            <Link to="/device-selection/identity-theft" className="search-option special-option">Identity theft</Link>
+            <Link to="/device-selection/identity%20theft" className="search-option special-option">Identity theft</Link>
             <Link to="/device-selection/poaching" className="search-option special-option">Poaching</Link>
             <Link to="/device-selection/ransomware" className="search-option special-option">Ransomware</Link>
-            <Link to="/device-selection/social-engineering" className="search-option special-option">Social engineering</Link>
+            <Link to="/device-selection/social%20engineering" className="search-option special-option">Social engineering</Link>
             <Link to="/chat/custom" className="search-option special-option">Ask AI</Link>
           </div>
           {/* buttons link to device selection page */}
