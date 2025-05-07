@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { askQuestion, QuestionResponse } from '../services/api';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
 import ChatBox from '../components/ChatBox';
@@ -21,20 +22,53 @@ const ChatPage: React.FC = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
-  const handleSendMessage = (message: string) => {
+  // State for loading indicator
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSendMessage = async (message: string) => {
+    // Only process if message has content
+    if (!message.trim()) return;
+    
     // Add user message to chat
     setChatHistory([...chatHistory, { type: 'user', content: message }]);
-
-    // Simulate response (in a real app, this would be an API call)
-    setTimeout(() => {
+    
+    // Show loading indicator
+    setIsLoading(true);
+    
+    try {
+      // Call API for semantic search and LLM response
+      const response: QuestionResponse = await askQuestion(message);
+      
+      // Format the answer with source information if available
+      let formattedAnswer = response.answer;
+      
+      // Add sources information if available
+      if (response.sources && response.sources.length > 0) {
+        formattedAnswer += '\n\nSources:\n';
+        response.sources.forEach((source, index) => {
+          formattedAnswer += `${index + 1}. ${source.name} (${Math.round(source.relevance_score)}% relevance)\n`;
+        });
+      }
+      
+      // Add response to chat history
       setChatHistory(prev => [
-        ...prev, 
+        ...prev,
+        { type: 'assistant', content: formattedAnswer }
+      ]);
+    } catch (error) {
+      console.error('Error getting answer:', error);
+      
+      // Add error message to chat
+      setChatHistory(prev => [
+        ...prev,
         { 
           type: 'assistant', 
-          content: `This is a placeholder response for your query about ${crimeType} on ${deviceType} devices. In the full implementation, this would provide detailed information about digital artifacts and investigation techniques.` 
+          content: 'I encountered an error while processing your question. Please try again later.'
         }
       ]);
-    }, 1000);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -55,9 +89,30 @@ const ChatPage: React.FC = () => {
           <div className="chat-messages">
             {chatHistory.map((chat, index) => (
               <div key={index} className={`chat-message ${chat.type}`}>
-                <div className="message-content">{chat.content}</div>
+                <div className="message-content">
+                  {/* Convert newlines to line breaks for better formatting */}
+                  {chat.content.split('\n').map((line, i) => (
+                    <React.Fragment key={i}>
+                      {line}
+                      {i < chat.content.split('\n').length - 1 && <br />}
+                    </React.Fragment>
+                  ))}
+                </div>
               </div>
             ))}
+            
+            {/* Loading indicator */}
+            {isLoading && (
+              <div className="chat-message assistant loading">
+                <div className="message-content">
+                  <div className="typing-indicator">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
           
           <ChatBox 

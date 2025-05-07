@@ -1,0 +1,1 @@
+## recieves the users natural language query from ChatPage.

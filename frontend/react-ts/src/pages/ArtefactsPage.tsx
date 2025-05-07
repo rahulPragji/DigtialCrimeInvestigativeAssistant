@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { fetchEvidenceItems, EvidenceItem as ApiEvidenceItem } from '../services/api';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
-import ArtefactCard from '../components/ArtefactCard';
+// ArtefactCard is not used in this component anymore
 import EnlargedArtefact from '../components/EnlargedArtefact';
 import Loader from '../components/Loader';
 
@@ -12,6 +13,7 @@ interface Artefact {
   name: string;
   location: string;
   description: string;
+  significance: string;
   selected?: boolean;
 }
 
@@ -41,96 +43,64 @@ const ArtefactsPage: React.FC = () => {
     setSelectedArtefact(artefact);
   };
 
-  // Function to determine icon based on artefact properties
-  const getArtefactIcon = (artefact: Artefact): string => {
-    const { name, location } = artefact;
-    const lowerName = name.toLowerCase();
-    const lowerLocation = location.toLowerCase();
-    
-    // Determine icon based on file type/location patterns
-    if (lowerLocation.includes('database') || lowerLocation.endsWith('.db')) {
-      return '💾'; // Database files
-    } else if (lowerLocation.includes('cache')) {
-      return '🔄'; // Cache files
-    } else if (lowerLocation.includes('logs') || lowerLocation.includes('history')) {
-      return '📋'; // Log files
-    } else if (lowerLocation.includes('shared_prefs') || lowerLocation.includes('config')) {
-      return '⚙️'; // Configuration/preferences
-    } else if (lowerLocation.includes('messaging') || lowerName.includes('message')) {
-      return '💬'; // Messaging related
-    } else if (lowerLocation.includes('browser') || lowerName.includes('browser')) {
-      return '🌐'; // Browser related
-    } else if (activeDeviceType === 'android') {
-      return '📱'; // Default for Android
-    } else if (activeDeviceType === 'windows') {
-      return '💻'; // Default for Windows
-    }
-    
-    // Default fallback
-    return '📄';
-  };
+  /* 
+   * Note: getArtefactIcon function has been removed as it's not currently used.
+   * This can be re-added when implementing icons for artefacts.
+   */
 
-  // Mock data - in a real app, this would come from an API call
+  // Fetch evidence items from API based on crime subtype and device type
   useEffect(() => {
-    setLoading(true);
+    // Only fetch if we have both crimeType and device type
+    if (!crimeType) return;
     
-    // Simulate API call with setTimeout
-    const timer = setTimeout(() => {
-      // Different data based on device type
-      if (activeDeviceType === 'android') {
-        setArtefacts([
-          {
-            id: '1',
-            name: 'User Database',
-            location: '/data/data/com.app/databases/user_data.db',
-            description: 'Contains user profile information and authentication data.'
-          },
-          {
-            id: '2',
-            name: 'Media Cache',
-            location: '/data/data/com.messaging/files/cache/',
-            description: 'Cached media files from messaging applications.'
-          },
-          {
-            id: '3',
-            name: 'App Preferences',
-            location: '/sdcard/Android/data/com.social/shared_prefs/',
-            description: 'Shared preferences containing login tokens and user details.'
-          },
-          {
-            id: '4',
-            name: 'Browser History',
-            location: '/data/data/com.browser/databases/history.db',
-            description: 'Browser history database with visited sites and timestamps.'
-          }
-        ]);
-      } else {
-        setArtefacts([
-          {
-            id: '1',
-            name: 'User Database',
-            location: 'C:\\Users\\AppData\\Roaming\\App\\Database.db',
-            description: 'Main application database with user information.'
-          },
-          {
-            id: '2',
-            name: 'System Logs',
-            location: 'C:\\Program Files\\App\\Logs\\',
-            description: 'Application logs with user activity.'
-          },
-          {
-            id: '3',
-            name: 'Temp Cache',
-            location: 'C:\\Users\\AppData\\Local\\Temp\\Cache\\',
-            description: 'Temporary cache files that may contain sensitive information.'
-          }
-        ]);
-      }
+    const fetchArtefacts = async () => {
+      setLoading(true);
       
-      setLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
+      try {
+        // Call API to get evidence items
+        const evidenceItems = await fetchEvidenceItems(
+          crimeType,
+          activeDeviceType as 'android' | 'windows'
+        );
+        
+        // Map API response to Artefact interface
+        const mappedArtefacts: Artefact[] = evidenceItems.map((item: ApiEvidenceItem, index: number) => {
+          // Get the first location or an empty string if no locations
+          const mainLocation = item.locations && item.locations.length > 0 
+            ? item.locations[0] 
+            : 'Location not specified';
+            
+          // Join additional locations for the description
+          const additionalLocations = item.locations && item.locations.length > 1
+            ? `Also found at: ${item.locations.slice(1).join(', ')}`
+            : '';
+            
+          // Create description from significance and additional locations
+          const description = [
+            item.significance,
+            additionalLocations
+          ].filter(Boolean).join('\n\n');
+          
+          return {
+            id: `${index + 1}`,
+            name: item.name,
+            location: mainLocation,
+            description: description,
+            significance: item.significance
+          };
+        });
+        
+        setArtefacts(mappedArtefacts);
+      } catch (error) {
+        console.error(`Error fetching evidence items for ${crimeType} on ${activeDeviceType}:`, error);
+        // Set empty array to show no results instead of showing an error
+        setArtefacts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchArtefacts();
   }, [activeDeviceType, crimeType]);
 
   return (
@@ -163,7 +133,12 @@ const ArtefactsPage: React.FC = () => {
             <Loader />
           ) : (
             <div className="artefacts-list">
-              {artefacts.map(artefact => (
+              {artefacts.length === 0 ? (
+                <div className="no-artefacts-message">
+                  <p>No evidence items found for {crimeType} on {activeDeviceType} devices.</p>
+                  <p>Try selecting a different crime type or device.</p>
+                </div>
+              ) : artefacts.map(artefact => (
                 <div 
                   key={artefact.id} 
                   className="artefact-list-item"
@@ -172,8 +147,17 @@ const ArtefactsPage: React.FC = () => {
                   <div className="artefact-list-content">
                     <h3 className="artefact-name">{artefact.name}</h3>
                     <div className="artefact-divider"></div>
-                    <p className="artefact-location">location : {artefact.location}</p>
+                    <p className="artefact-location">{artefact.location}</p>
+                    {artefact.significance && (
+                      <p className="artefact-significance">
+                        {artefact.significance.length > 60 
+                          ? `${artefact.significance.substring(0, 60)}...` 
+                          : artefact.significance}
+                      </p>
+                    )}
                   </div>
+                  {/* Add subtle blue glow effect on hover (as per user preference) */}
+                  <div className="artefact-hover-effect"></div>
                 </div>
               ))}
             </div>

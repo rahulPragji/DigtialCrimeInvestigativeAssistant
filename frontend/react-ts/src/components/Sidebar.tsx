@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { fetchCrimeSubtypes } from '../services/api';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -7,6 +8,30 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
+  // State for crime subtypes and loading state
+  const [crimeSubtypes, setCrimeSubtypes] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch crime subtypes from API on component mount
+  useEffect(() => {
+    const fetchSubtypes = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const subtypes = await fetchCrimeSubtypes();
+        setCrimeSubtypes(subtypes);
+      } catch (err) {
+        console.error('Failed to fetch crime subtypes:', err);
+        setError('Failed to load crime types. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSubtypes();
+  }, []);
+
   return (
     <>
       <div className={`sidebar ${isOpen ? 'open' : ''}`}>
@@ -15,32 +40,34 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
           <button className="close-sidebar" onClick={toggleSidebar}>×</button>
         </div>
         <div className="sidebar-content">
-          {/*Gets all crime types from Databse using api and puts it in this list as a link */}
-          {/* Items in list link to deviceSelection page to chose whether they want information on Android or Windows */}
+          {/* Crime subtypes from API are displayed as links to device selection */}
           <ul className="sidebar-menu">
             <li>
               <Link to="/home" onClick={toggleSidebar}>Home</Link>
             </li>
+            
+            {loading ? (
+              <li className="sidebar-loading">Loading crime types...</li>
+            ) : error ? (
+              <li className="sidebar-error">{error}</li>
+            ) : (
+              // Map through the fetched crime subtypes
+              crimeSubtypes.map((subtype, index) => (
+                <li key={`subtype-${index}`}>
+                  <Link 
+                    to={`/device-selection/${encodeURIComponent(subtype.toLowerCase())}`} 
+                    onClick={toggleSidebar}
+                    className="sidebar-item-link"
+                  >
+                    {subtype}
+                  </Link>
+                </li>
+              ))
+            )}
+            
+            {/* Always show the custom search option */}
             <li>
-              <Link to="/device-selection/identity-theft" onClick={toggleSidebar}>Identity theft</Link>
-            </li>
-            <li>
-              <Link to="/device-selection/phishing" onClick={toggleSidebar}>Phishing</Link>
-            </li>
-            <li>
-              <Link to="/device-selection/malware" onClick={toggleSidebar}>Malware</Link>
-            </li>
-            <li>
-              <Link to="/device-selection/data-breach" onClick={toggleSidebar}>Data Breach</Link>
-            </li>
-            <li>
-              <Link to="/device-selection/ransomware" onClick={toggleSidebar}>Ransomware</Link>
-            </li>
-            <li>
-              <Link to="/device-selection/social-engineering" onClick={toggleSidebar}>Social Engineering</Link>
-            </li>
-            <li>
-              <Link to="/device-selection/custom" onClick={toggleSidebar}>Custom Search</Link>
+              <Link to="/chat/custom" onClick={toggleSidebar} className="sidebar-custom-link">Ask AI</Link>
             </li>
           </ul>
         </div>
