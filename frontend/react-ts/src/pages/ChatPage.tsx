@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { askQuestion, QuestionResponse } from '../services/api';
 import Navbar from '../components/Navbar';
@@ -17,6 +17,7 @@ const ChatPage: React.FC = () => {
   const [chatHistory, setChatHistory] = useState<Array<{type: 'user' | 'assistant', content: string}>>([
     { type: 'assistant', content: `Welcome to the Digital Crime Investigation Assistant chat. How can I help you with your ${crimeType} investigation on ${deviceType} devices?` }
   ]);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -71,6 +72,15 @@ const ChatPage: React.FC = () => {
     }
   };
 
+  // Auto-scroll to bottom when chat history changes
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [chatHistory, isLoading]);
+
   return (
     <div className="container">
       <Navbar toggleSidebar={toggleSidebar} />
@@ -113,6 +123,9 @@ const ChatPage: React.FC = () => {
                 </div>
               </div>
             )}
+            
+            {/* Invisible element at the bottom for auto-scrolling */}
+            <div ref={messagesEndRef} />
           </div>
           
           <ChatBox 

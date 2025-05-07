@@ -1,1 +1,1 @@
-## recieves the users natural language query from ChatPage.
+## recieves the users natural language query from ChatPage and sends it to the embedding service.

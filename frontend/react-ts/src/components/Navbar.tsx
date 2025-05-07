@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import appLogo from '../assets/Icons/android-chrome-192x192.png';
 
 interface NavbarProps {
@@ -15,10 +16,12 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
           <span></span>
         </div>
       </div>
-      <div className="logo">
-        <img src={appLogo} alt="DCIA Logo" className="header-logo" />
-        <span>DCIA</span>
-      </div>
+      <Link to="/home" className="logo-link">
+        <div className="logo">
+          <img src={appLogo} alt="DCIA Logo" className="header-logo" />
+          <span>DCIA</span>
+        </div>
+      </Link>
     </header>
   );
 };

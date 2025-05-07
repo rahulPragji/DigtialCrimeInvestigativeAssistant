@@ -44,7 +44,7 @@ const HomePage: React.FC = () => {
             <Link to="/device-selection/identity%20theft" className="search-option special-option">Identity theft</Link>
             <Link to="/device-selection/poaching" className="search-option special-option">Poaching</Link>
             <Link to="/device-selection/ransomware" className="search-option special-option">Ransomware</Link>
-            <Link to="/device-selection/social%20engineering" className="search-option special-option">Social engineering</Link>
+            <button onClick={toggleSidebar} className="search-option special-option">More</button>
             <Link to="/chat/custom" className="search-option special-option">Ask AI</Link>
           </div>
           {/* buttons link to device selection page */}
